@@ -1,0 +1,15 @@
+.calendar-top {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  
+  .calendar-top-sun {
+    color: red;
+  }
+  
+  .calendar-top-sat {
+    color: blue;
+  }
+  

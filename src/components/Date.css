@@ -1,0 +1,16 @@
+.date-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+  
+  .date-cell {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  
+  .empty-cell {
+    background-color: #f0f0f0;
+  }
+  
