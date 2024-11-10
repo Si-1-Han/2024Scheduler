@@ -1,0 +1,86 @@
+* {
+  margin: 0;
+  padding: 0;
+  letter-spacing: -1px;
+  box-sizing: border-box;
+}
+
+a {
+  color: initial;
+  text-decoration: none;
+}
+
+.flex { display: flex; }
+.jcc { justify-content: center; }
+.aic { align-items: center; }
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px;
+  width: 100%;
+  filter: drop-shadow(0 0 15px rgba(0, 0, 0, .04));
+}
+
+.day-top {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+/* 연도와 월 스타일 */
+.calendar-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px; /* 캘린더와의 간격 조정 */
+}
+.header {
+  position: absolute;
+  display: flex;
+  align-items: right;
+  color: #ffffff;
+  font-weight: 600;
+  top: 0;
+  background-color: #242424;
+  width: 100%;
+  height: 10vh;
+}
+input, textarea {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s;
+  width: 80%; /* 적당한 너비로 설정 */
+}
+
+input:focus, textarea:focus {
+  border-color: #007bff;
+}
+
+.button {
+  font: inherit;
+  background-color: #f0f0f0;
+  border: 0;
+  color: #242424;
+  border-radius: 0.5em;
+  font-size: 16px;
+  padding: 0.375em 1em;
+  font-weight: 600;
+  text-shadow: 0 0.0625em 0 #fff;
+  box-shadow: inset 0 0.0625em 0 0 #f4f4f4, 0 0.0625em 0 0 #efefef, 0 0.125em 0 0 #ececec, 0 0.25em 0 0 #e0e0e0, 0 0.3125em 0 0 #dedede, 0 0.375em 0 0 #dcdcdc, 0 0.425em 0 0 #cacaca, 0 0.425em 0.5em 0 #cecece;
+  transition: 0.15s ease;
+  cursor: pointer;
+  width: 10%;
+  margin-top: 20px;
+}
+
+button:active, button:hover {
+  translate: 0 0.225em;
+  box-shadow: inset 0 0.03em 0 0 #f4f4f4, 0 0.03em 0 0 #efefef, 0 0.0625em 0 0 #ececec, 0 0.125em 0 0 #e0e0e0, 0 0.125em 0 0 #dedede, 0 0.2em 0 0 #dcdcdc, 0 0.225em 0 0 #cacaca, 0 0.225em 0 0.375em 0 #cecece;
+  cursor: pointer;
+}
