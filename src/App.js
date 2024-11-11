@@ -7,13 +7,27 @@ import Modal from './components/Modal';
 function App() {
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THR', 'FRI', 'SAT'];
   const today = new Date();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [events, setEvents] = useState({}); // 날짜별 일정 저장
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+  const dates = 
+    Array.from({ length: firstDayOfMonth }, () => null).concat(
+    Array.from({ length: daysInMonth }, (_, i) => i + 1))
+
+  const [events, setEvents] = useState({
+    title: "",
+    content: "",
+    image: ""
+  }); // 날짜별 일정 저장
+  
+  const [selectedEvent, setSelectedEvent] = useState(null);
   // 모달 열기
   const openModal = (date) => {
-    setSelectedDate(date);
+    const event = events[date] || { title: "", context: "", image: ""};
+    setSelectedDate(date)
+    setSelectedEvent(event);
     setIsModalOpen(true);
   };
 
@@ -45,30 +59,20 @@ function App() {
           ))}
         </div>
         <CalendarDate 
-          year={today.getFullYear()} 
-          month={today.getMonth()} 
           events={events} 
           onDateClick={openModal} 
+          dates = {dates}
         />
       </div>
 
       {isModalOpen && (
-        <Modal onClose={closeModal}>
-          <h2>{today.getFullYear()}. {today.getMonth() + 1}. {selectedDate}</h2>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const title = e.target.title.value;
-            const content = e.target.content.value;
-            const image = e.target.image.files[0];
-            const eventData = { title, content, image };
-            addEvent(eventData);
-          }}>
-            <input type="text" name="title" placeholder="제목" required /><p/>
-            <textarea name="content" placeholder="내용" required></textarea><p/>
-            <input type="file" name="image" accept="image/*" /><p/>
-            <button type="submit" className='button'>일정 추가</button>
-          </form>
-        </Modal>
+        <Modal 
+          onClose={closeModal}
+          onAddEvent={addEvent}
+          today = {today} 
+          selectedDate={selectedDate}
+          events = { selectedEvent }
+          dates = {dates}/>
       )}
     </div>
   );

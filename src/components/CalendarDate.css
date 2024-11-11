@@ -22,8 +22,8 @@
 
 .event-thumbnail {
   margin-top: 5px;
-  width: 50px;
-  height: 50px;
+  width: 70%;
+  height: 70%;
   object-fit: cover;
   border-radius: 5px;
   border: 1px solid #ddd;
