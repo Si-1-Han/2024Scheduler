@@ -1,0 +1,303 @@
+* {
+    margin: 0;
+    padding: 0;
+    letter-spacing: -1px;
+    box-sizing: border-box;
+}
+
+a {
+    color: initial;
+    text-decoration: none;
+}
+
+.flex {display: flex;}
+.col-flex {display: flex; flex-direction: column;}
+.jcc {justify-content: center;}
+.jcsb {justify-content: space-between;}
+.aic {align-items: center;}
+
+
+body {
+    font-family: Pretendard, sans-serif;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #dfdfdf;
+}
+
+.wrap {
+    flex-direction: column;
+    align-items: center;
+    width: 100;
+    height: 100%;
+}
+
+button {
+    padding: 10px 15px;
+    background: #444;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+}
+
+.calendar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    padding: 40px;
+    filter: drop-shadow(0 0 15px rgba(0, 0, 0, .04));
+}
+
+.calendar > div {
+    border-radius: 10px;
+}
+
+.calendar-top {
+    padding: 10px 20px;
+    font-weight: 900;
+    background: #444;
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.calendar-top:first-of-type {
+    background: rgba(206, 84, 13, 0.8);
+    color: white;
+}
+
+.calendar-top:nth-child(7) {
+    background: rgba(14, 11, 196, 0.8);
+    color: white;
+}
+
+.hidden-date {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.date {
+    background: #f4f4f4;
+    padding: 10px;
+    padding-bottom: 40px;
+    cursor: pointer;
+}
+
+.modal.schedule {
+    display: none;
+    position: fixed;
+    z-index: 100;
+}
+
+.modal-bg {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 105;
+    background: rgba(0, 0, 0, .4);
+    backdrop-filter: blur(5px);
+    left: 0;
+    top: 0;
+}
+
+.modal-form {
+    background: white;
+    padding: 30px;
+    border-radius: 30px;
+    position: fixed;
+    z-index: 107;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 500px;
+}
+
+.modal.schedule.show {
+    display: block;
+    top: 0;
+    left: 0;
+}
+
+.modal-content {
+    margin-top: 40px;
+}
+
+.modal-top {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+.form-inf {
+    text-align: center;
+}
+.form-inf button {
+    width: 40%;
+}
+
+.schedule-list {
+    padding: 5px;
+    border-radius: 20px;
+    background: white;
+    margin-bottom: 20px;
+    text-align: center;
+    min-height: 100px;
+    gap: 5px;
+}
+
+.schedule {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    gap: 20px;
+}
+
+.schedule img {
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.schedule-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.schedule-title {
+    flex-grow: 1;
+    margin-left: 20px;
+    text-align: left;
+    min-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+
+.schedule-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.schedule-time {
+    font-size: 14px;
+    color: #888;
+    margin-left: 10px;
+}
+.completed {
+    background-color: #e0e0e0;
+    color: #777;
+}
+
+.delete-btn {
+    white-space: nowrap;
+    margin-left: 20px;
+    padding: 5px 10px;
+    background: #f44;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+
+/* =================== 일정 추가 모달 스타일 =================== */
+
+.modal.add-schedule {
+    display: none;
+    position: fixed;
+    z-index: 100;
+}
+
+.modal.add-schedule.show {
+    display: block;
+}
+
+.modal-form {
+    min-width: 600px;
+    max-width: 600px;
+    padding: 30px;
+    border-radius: 20px;
+}
+
+.modal.add-schedule .modal-top {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+.modal-content {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.form-inf {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+    align-items: center; /* 버튼을 가운데 정렬 */
+}
+.form-inf input,
+.form-inf textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.form-inf textarea {
+    height: 150px;
+    resize: none;
+}
+
+.form-inf button {
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+}
+
+.form-inf button:hover {
+    background-color: #218838;
+}
+
+.form-inf label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+#schedule-image {
+    display: none;
+}
+
+#schedule-image + button {
+    background: #007bff;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#schedule-image + button:hover {
+    background: #0056b3;
+}
