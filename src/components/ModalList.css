@@ -1,0 +1,53 @@
+.modal-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .modal-text {
+    flex: 1;
+    padding-right: 20px;
+  }
+  
+  .modal-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .textbox {
+    margin: 5px 0;
+    text-align: left;
+  }
+  
+  .modal-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-right: 3px;
+  }
+  
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: solid 3px rgba(0,0,0,0.5);
+  }
+  
+  .modal-action-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .modal-action-button:hover {
+    background-color: #e0e0e0;
+  }
+  
