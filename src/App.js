@@ -48,20 +48,20 @@ function App() {
   const onDeleteEvent = (eventToDelete) => {
     setEvents((prevEvents) => {
       const updatedEvents = { ...prevEvents };
+      if (updatedEvents[selectedDate]) {
+        updatedEvents[selectedDate] = updatedEvents[selectedDate].filter(
+          (event) => event !== eventToDelete
+        );
   
-      // 해당 날짜의 이벤트 배열에서 특정 이벤트를 제외
-      updatedEvents[selectedDate] = updatedEvents[selectedDate].filter(
-        (event) => event !== eventToDelete
-      );
-  
-      // 만약 해당 날짜에 더 이상 이벤트가 없으면 해당 날짜를 삭제
-      if (updatedEvents[selectedDate].length === 0) {
-        delete updatedEvents[selectedDate];
+        // 선택된 날짜의 이벤트 배열이 비어 있으면 날짜 자체를 삭제
+        if (updatedEvents[selectedDate].length === 0) {
+          delete updatedEvents[selectedDate];
+        }
       }
-  
       return updatedEvents;
     });
   };
+  
   
   
 

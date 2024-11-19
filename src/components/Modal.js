@@ -12,7 +12,7 @@ const Modal = ({
   onDeleteEvent,
 }) => {
   const [onEdit, setOnEdit] = useState(false);
-  const [editedEvent, setEditedEvent] = useState(events || {});
+  const [editedEvent, setEditedEvent] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,14 +65,14 @@ const Modal = ({
                   type="text"
                   name="title"
                   placeholder="제목"
-                  defaultValue={editedEvent.title}
+                  defaultValue={editedEvent ? editedEvent.title : ""}
                   required
                 />
                 <p />
                 <textarea
                   name="content"
                   placeholder="내용"
-                  defaultValue={editedEvent.content}
+                  defaultValue={editedEvent ? editedEvent.content : ""}
                   required
                 ></textarea>
                 <p />
@@ -104,15 +104,15 @@ const Modal = ({
                 events.length > 0 &&
                 events.map((event, index) => (
                   <ModalList
-                    key={index}
-                    event={event} // 각 이벤트를 전달
+                    key={event.id || index}
+                    event={event}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
                 ))}
               {/* "일정 추가" 버튼 */}
               <button
-                onClick={handleEdit()}
+                onClick={() => handleEdit()}
                 className="button sidebutton"
               >
                 일정 추가
