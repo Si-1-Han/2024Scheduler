@@ -7,9 +7,7 @@ const Daytop = ({ name }) => {
   if (name === 'SAT') className += " calendar-top-sat";
 
   return (
-    <div className="calendar">
-      <div className={className}>{name}</div>
-    </div>
+    <div className={className}>{name}</div>
   );
 };
 

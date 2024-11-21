@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import Daytop from './components/Daytop';
-import CalendarDate from './components/CalendarDate';
-import Modal from './components/Modal';
+import Daytop from './calendarComponents/Daytop';
+import CalendarDate from './calendarComponents/CalendarDate';
+import Modal from './calendarComponents/Modal';
 
-function App() {
+function App({setPage}) {
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THR', 'FRI', 'SAT'];
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(null);
@@ -62,18 +62,24 @@ function App() {
     });
   };
   
-  
+  const handlePage = () => {
+    setPage('login')
+  }
   
 
   return (
     <div className="wrap flex jcc aic">
       <div className="calendar">
+        <button onClick={handlePage} className='button  '>Login</button>
         <h1 className="calendar-header">
           {today.getFullYear()}. {today.getMonth() + 1}
         </h1>
         <div className="day-top">
           {daysOfWeek.map((day, index) => (
-            <Daytop key={index} name={day} />
+            <Daytop 
+              key={index} 
+              name={day} 
+            />
           ))}
         </div>
         <CalendarDate 

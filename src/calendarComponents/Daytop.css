@@ -3,13 +3,16 @@
     padding: 10px;
     font-weight: bold;
     text-decoration: underline;
+    border: solid 3px skyblue;
+    border-radius: 30px;
+    background-color: skyblue;
   }
   
   .calendar-top-sun {
-    color: red;
+    background-color: red;
+    border: red;
   }
   
   .calendar-top-sat {
-    color: blue;
+    background-color: blue;
   }
-  
