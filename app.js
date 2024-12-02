@@ -98,7 +98,7 @@ const Calendar = {
     Calendar.year = today.getFullYear();
     Calendar.month = today.getMonth() + 1;
     Calendar.showDates(Calendar.year, Calendar.month);
-
+    Calendar.$date.innerHTML = `${Calendar.year}. ${Calendar.month}`;
     ScheduleManager.loadSchedule();
     Calendar.refreshScheduleList();
 
