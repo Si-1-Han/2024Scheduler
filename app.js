@@ -97,8 +97,11 @@ const Calendar = {
     const today = new Date();
     Calendar.year = today.getFullYear();
     Calendar.month = today.getMonth() + 1;
+    Calendar.day = today.getDate();
     Calendar.showDates(Calendar.year, Calendar.month);
+    //헤더 업데이트
     Calendar.$date.innerHTML = `${Calendar.year}. ${Calendar.month}`;
+
     ScheduleManager.loadSchedule();
     Calendar.refreshScheduleList();
 
