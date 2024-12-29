@@ -493,7 +493,25 @@ const ScheduleManager = {
     document.getElementById("edit-end-time").value = schedule.endTime || "00:00";
 
     ScheduleManager.currentEditId = scheduleId;
-    document.querySelector(".modal.edit-schedule").classList.add("show");
+  },
+
+  showAddScheduleModal() {
+    // '일정 추가' 모달을 엽니다.
+    const addScheduleModal = document.querySelector('.modal.add-schedule');
+    if (addScheduleModal) {
+        addScheduleModal.classList.add('show');
+    } else {
+        console.error('Add Schedule 모달을 찾을 수 없습니다.');
+    }
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("schedule-title").value = '';
+    document.getElementById("schedule-description").value = '';
+    document.getElementById("start-date").value = today;
+    document.getElementById("end-date").value = today;
+    document.getElementById("start-time").value =  "00:00";
+    document.getElementById("end-time").value = "00:00";
+    document.getElementById("schedule-image").files[0];
+
   },
 
   saveEditedSchedule() {
