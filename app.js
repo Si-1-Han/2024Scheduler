@@ -41,16 +41,17 @@ function applyColorsToThumbnails() {
   const thumbnails = document.querySelectorAll(".schedule-thumbnail");
   thumbnails.forEach((thumbnail) => {
     const scheduleTitle = thumbnail.textContent.trim();
-
-    // 일정 데이터를 찾아 색상 적용
     const schedule = ScheduleManager.schedules.find(
       (s) => s.title === scheduleTitle
     );
     if (schedule) {
-      thumbnail.style.backgroundColor = getColorForSchedule(schedule);
+      thumbnail.style.backgroundColor = schedule.color || getColorForSchedule(schedule);
+    } else {
+      console.warn("일정 데이터를 찾을 수 없습니다:", scheduleTitle);
     }
   });
 }
+
 
 // DOMContentLoaded에서 호출
 document.addEventListener("DOMContentLoaded", () => {
@@ -108,6 +109,78 @@ function closeEditScheduleModal() {
   document.getElementById("edit-schedule-image").value = "";
 }
 
+// 일정 리스트를 생성하며 수정 버튼 추가
+function renderScheduleList() {
+  const $scheduleList = document.querySelector(".schedule-list");
+  if (!$scheduleList) return;
+
+  // 기존 리스트 초기화
+  $scheduleList.innerHTML = "";
+
+  // 일정 데이터를 완료 상태에 따라 분리
+  const incompleteSchedules = ScheduleManager.schedules.filter((sc) => !sc.completed);
+  const completedSchedules = ScheduleManager.schedules.filter((sc) => sc.completed);
+
+  // 완료되지 않은 일정 먼저 렌더링
+  incompleteSchedules.forEach((sc) => {
+    const scheduleHtml = `
+      <div class="schedule flex aic ${sc.completed ? "completed" : ""}">
+        <input type="checkbox" class="schedule-checkbox" ${
+          sc.completed ? "checked" : ""
+        } onchange="ScheduleManager.toggleComplete('${sc.id}')">
+        ${
+          sc.image
+            ? `<img src="${sc.image}" alt="일정 이미지" class="schedule-image" style="max-width: 100px; max-height: 100px; border-radius: 10px;">`
+            : ""
+        }
+        <div class="schedule-details flex jcsb aic">
+          <div>
+            <h3 class="schedule-title">${sc.title} ${sc.completed ? "(완료)" : ""}</h3>
+            <p class="schedule-description">${sc.description}</p>
+            <span class="schedule-time">${sc.startTime} ~ ${sc.endTime}</span>
+          </div>
+          <div class="schedule-actions flex col-flex aic">
+            <button class="edit-btn" onclick="ScheduleManager.editSchedule('${sc.id}')">수정</button>
+            <button class="delete-btn" onclick="ScheduleManager.remove('${sc.id}')">삭제</button>
+          </div>
+        </div>
+      </div>
+    `;
+    $scheduleList.innerHTML += scheduleHtml;
+  });
+
+  // 완료된 일정 렌더링 (리스트 하단으로 이동)
+  completedSchedules.forEach((sc) => {
+    const scheduleHtml = `
+      <div class="schedule flex aic completed">
+        <input type="checkbox" class="schedule-checkbox" ${
+          sc.completed ? "checked" : ""
+        } onchange="ScheduleManager.toggleComplete('${sc.id}')">
+        ${
+          sc.image
+            ? `<img src="${sc.image}" alt="일정 이미지" class="schedule-image" style="max-width: 100px; max-height: 100px; border-radius: 10px;">`
+            : ""
+        }
+        <div class="schedule-details flex jcsb aic">
+          <div>
+            <h3 class="schedule-title">${sc.title} (완료)</h3>
+            <p class="schedule-description">${sc.description}</p>
+            <span class="schedule-time">${sc.startTime} ~ ${sc.endTime}</span>
+          </div>
+          <div class="schedule-actions flex col-flex aic">
+            <button class="edit-btn" onclick="ScheduleManager.editSchedule('${sc.id}')">수정</button>
+            <button class="delete-btn" onclick="ScheduleManager.remove('${sc.id}')">삭제</button>
+          </div>
+        </div>
+      </div>
+    `;
+    $scheduleList.innerHTML += scheduleHtml;
+  });
+}
+
+
+
+
 const Calendar = {
   init() {
     const today = new Date();
@@ -121,6 +194,7 @@ const Calendar = {
     Calendar.refreshScheduleList();
 
     Calendar.evtHandle();
+    renderScheduleList();
   },
   addMonth(m) {
     const date = new Date(Calendar.year, Calendar.month + m - 1, 1);
@@ -362,28 +436,6 @@ const ScheduleManager = {
     ls["schedules"] = JSON.stringify(ScheduleManager.schedules);
   },
 
-  showAddScheduleModal() {
-    Calendar.init();
-
-    this.editingScheduleId = null;
-
-    document.getElementById("schedule-title").value = "";
-    document.getElementById("schedule-description").value = "";
-    document.getElementById("end-date").value = "";
-    document.getElementById("end-time").value = "";
-    document.getElementById("schedule-title").value = "";
-    document.getElementById("schedule-description").value = "";
-    document.getElementById("schedule-image").value = "";
-
-    document.querySelector(".modal.add-schedule").classList.add("show");
-    const startDateInput = document.getElementById("start-date");
-    if (!startDateInput.value) {
-      startDateInput.value = `${Calendar.year}-${String(
-        Calendar.month
-      ).padStart(2, "0")}-${String(Calendar.day).padStart(2, "0")}`;
-    }
-  },
-
   addSchedule() {
     const title = document.getElementById("schedule-title").value;
     const description = document.getElementById("schedule-description").value;
@@ -396,7 +448,7 @@ const ScheduleManager = {
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
     const newSchedule = {
-      id: `${Date.now()}`,
+      id: `${Date.now()}`, // 고유 ID
       title,
       description,
       startDate,
@@ -411,23 +463,110 @@ const ScheduleManager = {
 
     ScheduleManager.schedules.push(newSchedule);
     ScheduleManager.saveSchedule();
+
     Calendar.showDates(Calendar.year, Calendar.month);
     Calendar.refreshScheduleList();
+    applyColorsToThumbnails();
+
     document.querySelector(".modal.add-schedule").classList.remove("show");
+  },
+
+  editSchedule(scheduleId) {
+
+    if (!scheduleId) {
+      console.error("scheduleId가 전달되지 않았습니다.");
+      return;
+    }
+
+    const schedule = ScheduleManager.schedules.find((sc) => sc.id === scheduleId);
+
+    if (!schedule) {
+      console.error("일정을 찾을 수 없습니다. ID:", scheduleId);
+      return;
+    }
+
+    document.getElementById("edit-schedule-title").value = schedule.title;
+    document.getElementById("edit-schedule-description").value = schedule.description;
+    document.getElementById("edit-start-date").value = schedule.startDate;
+    document.getElementById("edit-end-date").value = schedule.endDate || "";
+    document.getElementById("edit-start-time").value = schedule.startTime || "00:00";
+    document.getElementById("edit-end-time").value = schedule.endTime || "00:00";
+
+    ScheduleManager.currentEditId = scheduleId;
+    document.querySelector(".modal.edit-schedule").classList.add("show");
+  },
+
+  saveEditedSchedule() {
+    const scheduleId = ScheduleManager.currentEditId;
+
+    if (!scheduleId) {
+      console.error("수정할 일정 ID가 설정되지 않았습니다.");
+      return;
+    }
+
+    const title = document.getElementById("edit-schedule-title").value;
+    const description = document.getElementById("edit-schedule-description").value;
+    const startDate = document.getElementById("edit-start-date").value;
+    const endDate = document.getElementById("edit-end-date").value || startDate;
+    const startTime = document.getElementById("edit-start-time").value || "00:00";
+    const endTime = document.getElementById("edit-end-time").value || "00:00";
+
+    const schedule = ScheduleManager.schedules.find((sc) => sc.id === scheduleId);
+
+    if (schedule) {
+      schedule.title = title;
+      schedule.description = description;
+      schedule.startDate = startDate;
+      schedule.endDate = endDate;
+      schedule.startTime = startTime;
+      schedule.endTime = endTime;
+    }
+
+    ScheduleManager.saveSchedule();
+    Calendar.refreshScheduleList();
+    applyColorsToThumbnails();
+
+    document.querySelector(".modal.edit-schedule").classList.remove("show");
   },
 
   toggleComplete(id) {
     const schedule = ScheduleManager.schedules.find((sc) => sc.id === id);
-    schedule.completed = !schedule.completed;
-    ScheduleManager.saveSchedule();
-    Calendar.refreshScheduleList();
-  },
+  if (!schedule) {
+    console.error("일정을 찾을 수 없습니다. ID:", id);
+    return;
+  }
+
+  // 완료 상태 토글
+  schedule.completed = !schedule.completed;
+
+  // 특정 일정의 썸네일 색상 변경
+  const dateRange = generateDateRange(schedule.startDate, schedule.endDate);
+  dateRange.forEach((date) => {
+    const dateId = `schedule-thumbnails-${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+    const $thumbnailContainer = document.getElementById(dateId);
+    if ($thumbnailContainer) {
+      const thumbnails = $thumbnailContainer.querySelectorAll(".schedule-thumbnail");
+      thumbnails.forEach((thumbnail) => {
+        if (thumbnail.textContent.trim() === schedule.title) {
+          // 완료된 일정은 흰색, 아니면 원래 색상으로 복원
+          thumbnail.style.backgroundColor = schedule.completed ? "#FFFFFF" : getColorForSchedule(schedule);
+        }
+      });
+    }
+  });
+
+  // 데이터 저장 및 UI 갱신
+  ScheduleManager.saveSchedule();
+  renderScheduleList();
+},
 
   remove(id) {
-    ScheduleManager.schedules = ScheduleManager.schedules.filter(
-      (sc) => sc.id !== id
-    );
+    ScheduleManager.schedules = ScheduleManager.schedules.filter((sc) => sc.id !== id);
     ScheduleManager.saveSchedule();
     Calendar.refreshScheduleList();
+    applyColorsToThumbnails();
   },
 };
