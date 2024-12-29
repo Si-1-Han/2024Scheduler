@@ -55,7 +55,30 @@ function applyColorsToThumbnails() {
 
 // DOMContentLoaded에서 호출
 document.addEventListener("DOMContentLoaded", () => {
-  applyColorsToThumbnails();
+  const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    
+    if (!loggedUser) {
+        // 로그인 정보가 없으면 로그인 페이지로 리다이렉트
+        alert("로그인이 필요합니다.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    // 사용자 정보를 화면에 표시
+    document.getElementById("name").textContent = `이름: ${loggedUser.name}`;
+    document.getElementById("username").textContent = `학번: ${loggedUser.username}`;
+
+    // 일정 데이터 로드 및 사용자 기반 필터링
+    ScheduleManager.loadSchedule(); // 일정 데이터 로드
+    ScheduleManager.schedules = getUserSchedules(); // 사용자 기준 필터링
+
+    // 캘린더 초기화
+    Calendar.$Calendar = document.querySelector(".calendar");
+    Calendar.$date = document.querySelector(".cur-date");
+    Calendar.init(); // 초기화 및 렌더링
+
+    applyColorsToThumbnails();
+    applyRandomColors();
 });
 
 // 날짜 범위 생성 함수 (유틸리티 함수)
@@ -88,11 +111,6 @@ function applyRandomColors() {
     bar.style.backgroundColor = getRandomColor();
   });
 }
-
-// 페이지 로드 후 실행
-document.addEventListener("DOMContentLoaded", () => {
-  applyRandomColors();
-});
 
 //수정 모달이 꺼지면 완전히 초기화 하는 코드
 function closeEditScheduleModal() {
@@ -247,7 +265,13 @@ const Calendar = {
     calendar.addEventListener("click", (event) => {
       const target = event.target.closest(".date");
       if (target && !target.classList.contains("hidden-date")) {
+        const dateNum = target.querySelector("p").textContent.trim();
+        if(!dateNum){
+          console.error("선택된 날짜를 가져올 수 없습니다.");
+          return;
+        }
         Calendar.day = target.querySelector("p").textContent;
+        Calendar.selectedDate = `${Calendar.year}-${String(Calendar.month).padStart(2, "0")}-${String(dateNum).padStart(2, "0")}`;
 
         const selectedDate = `${Calendar.year}-${String(
           Calendar.month
@@ -502,12 +526,15 @@ const ScheduleManager = {
         addScheduleModal.classList.add('show');
     } else {
         console.error('Add Schedule 모달을 찾을 수 없습니다.');
+        return;
     }
-    const today = new Date().toISOString().split('T')[0];
+    const startDateInput = document.getElementById("start-date");
+    startDateInput.value = Calendar.selectedDate || new Date().toISOString()
+    .split('T')[0];
     document.getElementById("schedule-title").value = '';
     document.getElementById("schedule-description").value = '';
-    document.getElementById("start-date").value = today;
-    document.getElementById("end-date").value = today;
+    document.getElementById("start-date").value = startDateInput.value;
+    document.getElementById("end-date").value = startDateInput;
     document.getElementById("start-time").value =  "00:00";
     document.getElementById("end-time").value = "00:00";
     document.getElementById("schedule-image").files[0];
