@@ -117,7 +117,11 @@
                         <label for="edit-end-time">일정 종료</label>
                         <input type="time" id="edit-end-time">
                         <input type="file" id="edit-schedule-image" accept="image/*" style="display: none;">
-                        <button onclick="document.getElementById('edit-schedule-image').click()">이미지 업로드</button>
+                        <button onclick="document.getElementById('edit-schedule-image')
+                        .click()">이미지 업로드</button>
+
+                        
+                        
 
                         <button onclick="ScheduleManager.saveEditedSchedule()">저장</button>
                     </div>

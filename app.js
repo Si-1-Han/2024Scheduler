@@ -10,6 +10,11 @@ function generateHash(str) {
   }
   return Math.abs(hash);
 }
+function removeSchedule(id) {
+  ScheduleManager.schedules = ScheduleManager.schedules.filter((schedule) => schedule.id !== id);
+  ScheduleManager.saveSchedule(); // 로컬 스토리지에 반영
+  refreshScheduleList(); // UI 업데이트
+}
 
 // 해시를 기반으로 고유 색상 생성
 function getColorForSchedule(schedule) {
@@ -320,6 +325,7 @@ const Calendar = {
 
   refreshScheduleList() {
     const $mScheduleList = document.querySelector(".modal.schedule .schedule-list");
+    
     if ($mScheduleList) {
       $mScheduleList.innerHTML = ScheduleManager.schedules
         .map((schedule) => `
@@ -382,9 +388,12 @@ const Calendar = {
         )
         .join("\n\n");
     } else {
-      $mScheduleList.innerHTML = document.querySelector(".modal.schedule .schedule-list");
-        '<div class="flex aic jcc" style="width: 100%; height: 100%;">일정 없음!</div>';
-    }
+      $mScheduleList.innerHTML = `
+      <div class="flex aic jcc" style="width: 100%; height: 100%;">
+          일정 없음!
+      </div>
+    `;}
+    
     document
       .querySelectorAll(".schedule-thumbnails")
       .forEach((el) => (el.innerHTML = ""));
@@ -472,18 +481,7 @@ const ScheduleManager = {
   },
 
   editSchedule(scheduleId) {
-
-    if (!scheduleId) {
-      console.error("scheduleId가 전달되지 않았습니다.");
-      return;
-    }
-
     const schedule = ScheduleManager.schedules.find((sc) => sc.id === scheduleId);
-
-    if (!schedule) {
-      console.error("일정을 찾을 수 없습니다. ID:", scheduleId);
-      return;
-    }
 
     document.getElementById("edit-schedule-title").value = schedule.title;
     document.getElementById("edit-schedule-description").value = schedule.description;
@@ -532,6 +530,12 @@ const ScheduleManager = {
     const endDate = document.getElementById("edit-end-date").value || startDate;
     const startTime = document.getElementById("edit-start-time").value || "00:00";
     const endTime = document.getElementById("edit-end-time").value || "00:00";
+    const imageInput = document.getElementById("edit-schedule-image");
+    
+    let imageFile = null;
+    if (imageInput && imageInput.files.length > 0) {
+        imageFile = imageInput.files[0];
+    }
 
     const schedule = ScheduleManager.schedules.find((sc) => sc.id === scheduleId);
 
@@ -542,6 +546,9 @@ const ScheduleManager = {
       schedule.endDate = endDate;
       schedule.startTime = startTime;
       schedule.endTime = endTime;
+    }
+    if (imageFile) {
+      schedule.image = URL.createObjectURL(imageFile);
     }
 
     ScheduleManager.saveSchedule();
