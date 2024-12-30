@@ -512,7 +512,7 @@ const ScheduleManager = {
     document.getElementById("end-date").value = startDateInput;
     document.getElementById("start-time").value =  "00:00";
     document.getElementById("end-time").value = "00:00";
-    document.getElementById("schedule-image").files[0];
+    document.getElementById("schedule-image").value = "";
 
   },
 
