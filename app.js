@@ -1,20 +1,6 @@
 const ls = localStorage;
 
 
-// userIDs 필터링함수
-function getUserSchedules() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-  if (!loggedInUser) {
-      console.error("로그인된 사용자 정보가 없습니다.");
-      return [];
-  }
-
-  return ScheduleManager.schedules.filter((schedule) => {
-      const userIDs = schedule.userIDs || []; // 기본값 처리
-      return userIDs.includes(loggedInUser.username);
-  });
-}
-
 // 일정 요소를 기반으로 해시 생성
 function generateHash(str) {
   let hash = 0;
@@ -38,6 +24,7 @@ function getColorForSchedule(schedule) {
 
 // 썸네일에 색상 적용
 function applyColorsToThumbnails() {
+  // 썸네일 색상 설정
   const thumbnails = document.querySelectorAll(".schedule-thumbnail");
   thumbnails.forEach((thumbnail) => {
     const scheduleTitle = thumbnail.textContent.trim();
@@ -45,32 +32,30 @@ function applyColorsToThumbnails() {
       (s) => s.title === scheduleTitle
     );
     if (schedule) {
-      thumbnail.style.backgroundColor = schedule.color || getColorForSchedule(schedule);
-    } else {
-      console.warn("일정 데이터를 찾을 수 없습니다:", scheduleTitle);
+      // completed 상태 확인
+      thumbnail.style.backgroundColor = schedule.completed
+        ? "#FFFFFF" // 완료된 일정은 흰색
+        : getColorForSchedule(schedule); // 기본 색상
     }
+  });
+
+  // 랜덤 색상 설정 (기존 applyRandomColors 역할 통합)
+  const colorBars = document.querySelectorAll(".color-bar");
+  colorBars.forEach((colorBar) => {
+    colorBar.style.backgroundColor = `#${Math.floor(
+      Math.random() * 16777215
+    ).toString(16)}`; // 랜덤 색상
   });
 }
 
 
 // DOMContentLoaded에서 호출
 document.addEventListener("DOMContentLoaded", () => {
-  const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    
-    if (!loggedUser) {
-        // 로그인 정보가 없으면 로그인 페이지로 리다이렉트
-        alert("로그인이 필요합니다.");
-        window.location.href = "login.html";
-        return;
-    }
-
     // 사용자 정보를 화면에 표시
-    document.getElementById("name").textContent = `이름: ${loggedUser.name}`;
-    document.getElementById("username").textContent = `학번: ${loggedUser.username}`;
+    
 
     // 일정 데이터 로드 및 사용자 기반 필터링
     ScheduleManager.loadSchedule(); // 일정 데이터 로드
-    ScheduleManager.schedules = getUserSchedules(); // 사용자 기준 필터링
 
     // 캘린더 초기화
     Calendar.$Calendar = document.querySelector(".calendar");
@@ -78,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
     Calendar.init(); // 초기화 및 렌더링
 
     applyColorsToThumbnails();
-    applyRandomColors();
 });
 
 // 날짜 범위 생성 함수 (유틸리티 함수)
@@ -104,13 +88,6 @@ function getRandomColor() {
   return color;
 }
 
-// 색상 바에 랜덤 색상 적용
-function applyRandomColors() {
-  const colorBars = document.querySelectorAll(".color-bar");
-  colorBars.forEach((bar) => {
-    bar.style.backgroundColor = getRandomColor();
-  });
-}
 
 //수정 모달이 꺼지면 완전히 초기화 하는 코드
 function closeEditScheduleModal() {
@@ -226,38 +203,40 @@ const Calendar = {
   showDates(y, m) {
     const before = document.querySelectorAll(".date");
     before.forEach((v) => v.remove());
-
+  
     const firstDayOfMonth = Calendar.getFirstDay(y, m);
     const lastDayOfMonth = Calendar.getLastDay(y, m);
-    const userSchedules = getUserSchedules(); // 사용자와 관련된 일정만 가져옴
-
+  
     for (let i = 0; i < firstDayOfMonth + lastDayOfMonth; i++) {
-        const dateNum = i - firstDayOfMonth + 1;
-        const dateString = `${y}-${String(m).padStart(2, "0")}-${String(
-            dateNum
-        ).padStart(2, "0")}`;
-
-        const schedulesForDate = userSchedules.filter((schedule) => {
-            const dateRange = generateDateRange(schedule.startDate, schedule.endDate)
-                .map((date) => date.toISOString().split("T")[0]);
-            return dateRange.includes(dateString);
-        });
-
-        Calendar.$Calendar.innerHTML += `
-            <div class="date ${dateNum < 1 ? "hidden-date" : ""}">
-                <p>${dateNum > 0 ? dateNum : ""}</p>
-                <div class="color-bar"></div>
-                <div class="schedule-thumbnails" id="schedule-thumbnails-${dateString}">
-                    ${schedulesForDate
-                        .map(
-                            (schedule) =>
-                                `<div class="schedule-thumbnail">${schedule.title}</div>`
-                        )
-                        .join("")}
-                </div>
-            </div>`;
+      const dateNum = i - firstDayOfMonth + 1;
+      const dateString = `${y}-${String(m).padStart(2, "0")}-${String(
+        dateNum
+      ).padStart(2, "0")}`;
+  
+      const schedulesForDate = ScheduleManager.schedules.filter((schedule) => {
+        const dateRange = generateDateRange(schedule.startDate, schedule.endDate)
+          .map((date) => date.toISOString().split("T")[0]);
+        return dateRange.includes(dateString);
+      });
+  
+      Calendar.$Calendar.innerHTML += `
+        <div class="date ${dateNum < 1 ? "hidden-date" : ""}">
+          <p>${dateNum > 0 ? dateNum : ""}</p>
+          <div class="color-bar"></div>
+          <div class="schedule-thumbnails" id="schedule-thumbnails-${dateString}">
+            ${schedulesForDate
+              .map(
+                (schedule) => `
+                <div class="schedule-thumbnail" style="background-color: ${
+                  schedule.completed ? "#FFFFFF" : getColorForSchedule(schedule)
+                }; ">
+                  ${schedule.title}
+                </div>`
+              )
+              .join("")}
+          </div>
+        </div>`;
     }
-    applyColorsToThumbnails();
   },
 
   evtHandle() {
@@ -341,16 +320,15 @@ const Calendar = {
 
   refreshScheduleList() {
     const $mScheduleList = document.querySelector(".modal.schedule .schedule-list");
-    const filteredScheduleList = getUserSchedules();
-    if ($mScheduleList){
-      $mScheduleList.innerHTML = filteredScheduleList
-      .map((schedule) => `
-                <div class="schedule-item">
-                    <p>${schedule.title}</p>
-                    <p>${schedule.description}</p>
-                </div>
-            `)
-            .join
+    if ($mScheduleList) {
+      $mScheduleList.innerHTML = ScheduleManager.schedules
+        .map((schedule) => `
+          <div class="schedule-item">
+            <p>${schedule.title}</p>
+            <p>${schedule.description}</p>
+          </div>
+        `)
+        .join("");
     }
     const selectedDate = `${Calendar.year}-${String(Calendar.month).padStart(
       2,"0")}-${String(Calendar.day).padStart(2, "0")}`;
@@ -404,7 +382,7 @@ const Calendar = {
         )
         .join("\n\n");
     } else {
-      $mScheduleList.innerHTML =
+      $mScheduleList.innerHTML = document.querySelector(".modal.schedule .schedule-list");
         '<div class="flex aic jcc" style="width: 100%; height: 100%;">일정 없음!</div>';
     }
     document
@@ -469,8 +447,7 @@ const ScheduleManager = {
     const endTime = document.getElementById("end-time").value || "00:00";
     const image = document.getElementById("schedule-image").files[0];
 
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-
+   
     const newSchedule = {
       id: `${Date.now()}`, // 고유 ID
       title,
@@ -482,7 +459,6 @@ const ScheduleManager = {
       image: image ? URL.createObjectURL(image) : "",
       color: getRandomColor(),
       completed: false,
-      userIDs: [loggedInUser.username],
     };
 
     ScheduleManager.schedules.push(newSchedule);
@@ -517,6 +493,7 @@ const ScheduleManager = {
     document.getElementById("edit-end-time").value = schedule.endTime || "00:00";
 
     ScheduleManager.currentEditId = scheduleId;
+    document.querySelector(".modal.edit-schedule").classList.add("show");
   },
 
   showAddScheduleModal() {
@@ -576,14 +553,12 @@ const ScheduleManager = {
 
   toggleComplete(id) {
     const schedule = ScheduleManager.schedules.find((sc) => sc.id === id);
-  if (!schedule) {
-    console.error("일정을 찾을 수 없습니다. ID:", id);
-    return;
-  }
 
   // 완료 상태 토글
   schedule.completed = !schedule.completed;
-
+  //데이터 저장(완료상태)
+  ScheduleManager.saveSchedule();
+  
   // 특정 일정의 썸네일 색상 변경
   const dateRange = generateDateRange(schedule.startDate, schedule.endDate);
   dateRange.forEach((date) => {
@@ -605,7 +580,6 @@ const ScheduleManager = {
 
   // 데이터 저장 및 UI 갱신
   ScheduleManager.saveSchedule();
-  renderScheduleList();
 },
 
   remove(id) {

@@ -17,11 +17,6 @@
     </div>
     <div class="wrap col-flex jcc alc">
         <div class="flex aic" style="gap: 40px">
-            <div class ="user-info">
-                <p id="name"></p>
-                <p id="username"></p>
-                <button id="logout-button">로그아웃</button>
-            </div>
             <button onclick="Calendar.addMonth(-1)">◀</button>
             <h1 class="cur-date"></h1>
             <button onclick="Calendar.addMonth(1)">▶</button>
@@ -134,35 +129,6 @@
 
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // 로컬스토리지에서 로그인한 사용자 정보 가져오기
-            const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
-            const filteredSchedules = JSON.parse(localStorage.getItem("filteredSchedules")) || [];
-            
-            if (loggedUser) {
-                // 사용자 정보를 화면에 표시
-                document.getElementById("name").textContent = `이름: ${loggedUser.name}`;
-                document.getElementById("username").textContent = `학번: ${loggedUser.username}`;
-            } else {
-                // 로그인 정보가 없으면 로그인 페이지로 리다이렉트
-                alert("로그인이 필요합니다.");
-                window.location.href = "login.html";
-                return
-            }
-    
-            // 로그아웃 버튼 클릭 시 처리
-            const logoutButton = document.getElementById("logout-button");
-             if (logoutButton) {
-             logoutButton.addEventListener("click", () => {
-            alert("로그아웃 되었습니다.");
-            window.location.href = "login.html"; // 로그인 페이지로 이동
-             });
-             } else {
-             console.error("로그아웃 버튼을 찾을 수 없습니다.");
-             }
-            });
-    
-        // 캘린더 초기화
         Calendar.$Calendar = document.querySelector(".calendar");
         Calendar.$date = document.querySelector(".cur-date");
         Calendar.init();
