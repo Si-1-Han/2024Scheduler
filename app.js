@@ -489,6 +489,16 @@ const ScheduleManager = {
     document.getElementById("edit-end-date").value = schedule.endDate || "";
     document.getElementById("edit-start-time").value = schedule.startTime || "00:00";
     document.getElementById("edit-end-time").value = schedule.endTime || "00:00";
+    const fileInput = document.getElementById("edit-schedule-image");
+    let imageFile = null;
+    
+    if (fileInput && fileInput.files.length > 0) {
+        imageFile = fileInput.files[0];
+        schedule.image = URL.createObjectURL(imageFile); // 새 이미지 URL 생성
+    } else {
+        console.error("이미지가 선택되지 않았습니다.");
+    }
+    
 
     ScheduleManager.currentEditId = scheduleId;
     document.querySelector(".modal.edit-schedule").classList.add("show");
@@ -583,10 +593,8 @@ const ScheduleManager = {
         }
       });
     }
+    renderScheduleList();
   });
-
-  // 데이터 저장 및 UI 갱신
-  ScheduleManager.saveSchedule();
 },
 
   remove(id) {
