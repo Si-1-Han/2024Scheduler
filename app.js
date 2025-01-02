@@ -117,9 +117,16 @@ function renderScheduleList() {
   // 기존 리스트 초기화
   $scheduleList.innerHTML = "";
 
-  // 일정 데이터를 완료 상태에 따라 분리
-  const incompleteSchedules = ScheduleManager.schedules.filter((sc) => !sc.completed);
-  const completedSchedules = ScheduleManager.schedules.filter((sc) => sc.completed);
+  const selectedDate = `${Calendar.year}-${String(Calendar.month).padStart(2, "0")}-${String(Calendar.day).padStart(2, "0")}`;
+
+  // 선택된 날짜에 해당하는 일정만 필터링
+  const schedulesForDate = ScheduleManager.schedules.filter(
+    (schedule) => schedule.startDate === selectedDate
+  );
+
+  // 완료 상태에 따라 일정 분리
+  const incompleteSchedules = schedulesForDate.filter((sc) => !sc.completed);
+  const completedSchedules = schedulesForDate.filter((sc) => sc.completed)
 
   // 완료되지 않은 일정 먼저 렌더링
   incompleteSchedules.forEach((sc) => {
@@ -339,13 +346,10 @@ const Calendar = {
     const selectedDate = `${Calendar.year}-${String(Calendar.month).padStart(
       2,"0")}-${String(Calendar.day).padStart(2, "0")}`;
 
-    const schedules = ScheduleManager.schedules.filter((schedule) => {
-      const dateRange = generateDateRange(
-        schedule.startDate,
-        schedule.endDate
-      ).map((date) => date.toISOString().split("T")[0]);
-      return dateRange.includes(selectedDate);
-    });
+      const schedules = ScheduleManager.schedules.filter(
+        (schedule) => schedule.startDate === selectedDate
+    );
+    
 
     schedules.sort((a, b) => {
       if (a.completed !== b.completed) {
@@ -576,6 +580,10 @@ const ScheduleManager = {
   //데이터 저장(완료상태)
   ScheduleManager.saveSchedule();
   
+  const selectedDate = `${Calendar.year}-${String(Calendar.month).padStart(2, "0")}-${String(Calendar.day).padStart(2, "0")}`;
+  const $mScheduleList = document.querySelector(".modal.schedule .schedule-list");
+
+
   // 특정 일정의 썸네일 색상 변경
   const dateRange = generateDateRange(schedule.startDate, schedule.endDate);
   dateRange.forEach((date) => {
